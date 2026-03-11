@@ -48,7 +48,7 @@ def feishu():
     print("Received:", data)
 
     chat_id = data["event"]["message"]["chat_id"]
-    send_message(chat_id, "你好\(@^0^@)/")
+    send_message(chat_id, "你好你好你好你好")
 
     return jsonify({"status": "ok"})
 
