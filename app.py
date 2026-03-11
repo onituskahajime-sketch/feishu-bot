@@ -17,7 +17,12 @@ def feishu():
 
     print("Received:", data)
 
-    return jsonify({"status": "ok"})
+    return jsonify({
+        "msg_type": "text",
+        "content": {
+            "text": "我收到了你的消息"
+        }
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
