@@ -52,7 +52,13 @@ def feishu():
 
     # 读取用户发的内容
     content = data["event"]["message"]["content"]
-    text = json.loads(content)["text"]
+
+    try:
+        text = json.loads(content)["text"]
+    except:
+        text = content
+
+    print("User said:", text)
 
     # 如果用户说 "日报"
     if "日报" in text:
@@ -64,6 +70,7 @@ def feishu():
         send_message(chat_id, "你好你好你好你好你好")
 
     return jsonify({"status": "ok"})
+
 
 def get_table_records():
     token = get_tenant_access_token()
@@ -82,6 +89,7 @@ def get_table_records():
 
     return data["data"]["items"]
 
+
 def build_daily_report(records):
 
     projects = {}
@@ -89,11 +97,11 @@ def build_daily_report(records):
     for r in records:
         fields = r["fields"]
 
-        project = fields.get("项目","未知项目")
-        task = fields.get("镜头/任务","")
-        step = fields.get("环节","")
-        person = fields.get("人员","")
-        date = fields.get("预计提交","")
+        project = fields.get("项目", "未知项目")
+        task = fields.get("镜头/任务", "")
+        step = fields.get("环节", "")
+        person = fields.get("人员", "")
+        date = fields.get("预计提交", "")
 
         line = f"{task}｜{step}｜{person}｜预计{date}"
 
@@ -111,6 +119,7 @@ def build_daily_report(records):
         text += "\n"
 
     return text
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
