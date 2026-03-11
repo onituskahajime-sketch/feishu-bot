@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import requests
 import os
+import json
 
 app = Flask(__name__)
 
@@ -51,7 +52,7 @@ def feishu():
 
     # 读取用户发的内容
     content = data["event"]["message"]["content"]
-    text = content.replace('{"text":"', '').replace('"}', '')
+    text = json.loads(content)["text"]
 
     # 如果用户说 "日报"
     if "日报" in text:
