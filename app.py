@@ -1,53 +1,56 @@
 from flask import Flask, request, jsonify
 import requests
+import os
 
 app = Flask(__name__)
+
+APP_ID = os.environ.get("FEISHU_APP_ID")
+APP_SECRET = os.environ.get("FEISHU_APP_SECRET")
+
 
 @app.route("/")
 def home():
     return "Feishu bot running"
 
 
+def get_tenant_access_token():
+    url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
+    resp = requests.post(url, json={
+        "app_id": APP_ID,
+        "app_secret": APP_SECRET
+    })
+    data = resp.json()
+    return data["tenant_access_token"]
+
+
+def send_message(chat_id, text):
+    token = get_tenant_access_token()
+    url = "https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=chat_id"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "receive_id": chat_id,
+        "msg_type": "text",
+        "content": "{\"text\":\"" + text + "\"}"
+    }
+    requests.post(url, headers=headers, json=payload)
+
+
 @app.route("/feishu", methods=["POST"])
 def feishu():
     data = request.json
 
-    # 飞书验证
     if "challenge" in data:
         return jsonify({"challenge": data["challenge"]})
 
     print("Received:", data)
 
-    message = data["event"]["message"]["content"]
     chat_id = data["event"]["message"]["chat_id"]
-
-    send_message(chat_id, "我收到了你的消息")
+    send_message(chat_id, "你好\(@^0^@)/")
 
     return jsonify({"status": "ok"})
-
-
-def send_message(chat_id, text):
-
-    url = "https://open.feishu.cn/open-apis/im/v1/messages"
-
-    headers = {
-        "Authorization": "Bearer YOUR_ACCESS_TOKEN",
-        "Content-Type": "application/json"
-    }
-
-    payload = {
-        "receive_id": chat_id,
-        "msg_type": "text",
-        "content": {
-            "text": text
-        }
-    }
-
-    requests.post(
-        url + "?receive_id_type=chat_id",
-        headers=headers,
-        json=payload
-    )
 
 
 if __name__ == "__main__":
